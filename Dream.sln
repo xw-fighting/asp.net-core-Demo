@@ -11,9 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "document", "document", "{17
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dream.Web", "src\Dream.Web\Dream.Web.csproj", "{DF2FE4D9-9218-4382-85A0-5F8DB3DFAE96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dream.EntityFramework", "Dream.EntityFramework\Dream.EntityFramework.csproj", "{EBE09D74-2CA3-4D69-B80E-DE5A939C75C2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelTest", "src\ModelTest\ModelTest.csproj", "{6EEFCDCE-FBCA-406F-90BB-21AB0213E37C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dream.EntityFramework", "src\Dream.EntityFramework\Dream.EntityFramework.csproj", "{E14E61A9-8B33-4292-9529-3B1E91175996}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,21 +25,21 @@ Global
 		{DF2FE4D9-9218-4382-85A0-5F8DB3DFAE96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF2FE4D9-9218-4382-85A0-5F8DB3DFAE96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF2FE4D9-9218-4382-85A0-5F8DB3DFAE96}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EBE09D74-2CA3-4D69-B80E-DE5A939C75C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EBE09D74-2CA3-4D69-B80E-DE5A939C75C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EBE09D74-2CA3-4D69-B80E-DE5A939C75C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EBE09D74-2CA3-4D69-B80E-DE5A939C75C2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6EEFCDCE-FBCA-406F-90BB-21AB0213E37C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6EEFCDCE-FBCA-406F-90BB-21AB0213E37C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EEFCDCE-FBCA-406F-90BB-21AB0213E37C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EEFCDCE-FBCA-406F-90BB-21AB0213E37C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E14E61A9-8B33-4292-9529-3B1E91175996}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E14E61A9-8B33-4292-9529-3B1E91175996}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E14E61A9-8B33-4292-9529-3B1E91175996}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E14E61A9-8B33-4292-9529-3B1E91175996}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DF2FE4D9-9218-4382-85A0-5F8DB3DFAE96} = {3E3E12C9-84FD-40AD-93F5-C76E211990BF}
-		{EBE09D74-2CA3-4D69-B80E-DE5A939C75C2} = {3E3E12C9-84FD-40AD-93F5-C76E211990BF}
 		{6EEFCDCE-FBCA-406F-90BB-21AB0213E37C} = {3E3E12C9-84FD-40AD-93F5-C76E211990BF}
+		{E14E61A9-8B33-4292-9529-3B1E91175996} = {3E3E12C9-84FD-40AD-93F5-C76E211990BF}
 	EndGlobalSection
 EndGlobal
