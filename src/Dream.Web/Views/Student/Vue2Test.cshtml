@@ -1,0 +1,478 @@
+﻿@*<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <link rel="stylesheet" href="~/css/style.css" />
+        <link href="~/fonts/iconfont.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div id="app">
+            <div class="container">
+                <simple-grid :data-list="gridData" :columns="gridColumns">
+                </simple-grid>
+            </div>
+            <div class="container">
+                <div class="form-group">
+                    <button @@click="this.show = true">Create</button>
+                </div>
+            </div>
+            <modal-dialog v-bind:show.sync="show">
+                <header class="dialog-header" slot="header">
+                    <h1 class="dialog-title">Create New Customer</h1>
+                </header>
+                <div class="dialog-body" slot="body">
+                    <div v-show="item.id" class="form-group">
+                        <label>Id</label>
+                        <input type="text" v-model="item.id" disabled="disabled" />
+                    </div>
+                    <div class="form-group">
+                        <label>LastName</label>
+                        <input type="text" v-model="item.lastName" />
+                    </div>
+                    <div class="form-group">
+                        <label>FirstMidName</label>
+                        <input type="text" v-model="item.firstMidName" />
+                    </div>
+                    <div class="form-group">
+                        <label>EnrollmentDate</label>
+                        <input type="text" v-model="item.enrollmentDate" />
+                    </div>
+                    <div class="form-group">
+                        <label></label>
+                        <button @@click="createStudent">Save</button>
+                    </div>
+                </div>
+            </modal-dialog>
+        </div>
+        <template id="grid-template">
+            <table>
+                <thead>
+                    <tr>
+                        <th v-for="col in columns">
+                            {{ col.name.toUpperCase() }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--1.0使用方式-->
+                    <!--<tr v-for="(index,entry) in dataList">-->
+
+                    <!--2.0的使用方式-->
+                    <tr v-for="(entry,index) in dataList">
+                        <td v-for="col in columns">
+                            {{ entry[col.name] }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </template>
+
+        <template id="dialog-template">
+            <div class="dialogs">
+                <div class="dialog" v-bind:class="{ 'dialog-active': show }">
+                    <div class="dialog-content">
+                        <div class="close rotate">
+                            <span class="iconfont icon-close" @@click="close"></span>
+                        </div>
+                        <slot name="header"></slot>
+                        <slot name="body"></slot>
+                        <slot name="footer"></slot>
+                    </div>
+                </div>
+                <div class="dialog-overlay"></div>
+            </div>
+        </template>
+
+        <script src="~/js/jquery-1.10.2.min.js"></script>
+        <script src="~/js/vue2.0.js"></script>
+        <script>
+            Vue.component('simple-grid', {
+                template: '#grid-template',
+                props: ['dataList', 'columns']
+            });
+            Vue.component('modal-dialog', {
+                template: '#dialog-template',
+                props: ['show'],
+                methods: {
+                    close: function () {
+                        this.show = false;
+                    }
+                }
+            })
+
+
+        </script>
+        <script>
+            var demo = new Vue({
+                el: '#app',
+                data: {
+                    show: false,
+                    gridColumns: [
+                        { name: 'id', isKey: true },
+                        { name: 'lastName' },
+                        { name: 'firstMidName' },
+                        { name: 'enrollmentDate' }],
+                    gridData: [],
+                    item: {}
+                },
+                //-----------------------1.0使用方式
+                //ready: function () {
+                //    this.getCustomers()
+                //},
+
+                //-----------------------2.0使用方式
+                mounted: function () {
+                    var _this = this;
+                    this.$nextTick(function () {
+                        _this.selectStudent();
+                    })
+                },
+                methods: {
+                    closeDialog: function () {
+                        this.show = false
+                    },
+                    selectStudent: function () {
+                        var _this = this;
+                        var url = '/api/student/index';
+                        callback = function (data) {
+                            //2.0不能使用_this.$set('gridData',data);
+                            _this.gridData = data;
+
+                            //_this.$set();
+                        }
+                        $.post(url, null, callback)
+                    },
+                    createStudent: function () {
+                        var _this = this;
+                        var url = '/api/student/create'
+                        callback = function (data) {
+                            _this.item = {};
+                            _this.selectStudent();
+                        }
+                        $.post(url, _this.item, callback)
+                        this.show = false
+                    },
+
+                }
+            })
+        </script>
+    </body>
+    </html>*@
+
+<!DOCUTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <link href="~/css/style.css" rel="stylesheet" />
+        <link href="~/fonts/iconfont.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div id="app">
+            <div class="container">
+                <simple-grid :data-list="gridData"
+                             :columns="gridColumns"
+                             v-on:load-entry="loadStudentDetail"
+                             v-on:delete-entry="deleteStudent"
+                             v-on:update-entry="updateStudent">
+                </simple-grid>
+            </div>
+            <div class="container">
+                <div class="form-group">
+                    <button @@click="show = true">Create</button>
+                </div>
+            </div>
+            <!--触发事件-->
+            <modal-dialog v-bind:show="show" @@close="close">
+                <header class="dialog-header" slot="header">
+                    <h1 class="dialog-title">Create New Student</h1>
+                </header>
+
+                <div class="dialog-body" slot="body">
+                    <div v-show="item.id" class="form-group">
+                        <label>Id</label>
+                        <input type="text" v-model="item.id" disabled="disabled" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>lastName</label>
+                        <input type="text" v-model="item.lastName" /><br />
+                        <span v-show="errorWarn.Key" class="form-group">{{errorWarn.LastName}}</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>firstMidName</label>
+                        <input type="text" v-model="item.firstMidName" /><br />
+                        <span v-show="errorWarn.Key">{{errorWarn.FirstMidName}}</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>enrollmentDate</label>
+                        <input type="text" v-model="item.enrollmentDate" />
+                    </div>
+                    <div class="form-group">
+                        <label></label>
+                        <span v-if="item.id == null"><button @@click="createStudent">Save</button></span>
+                        <span v-else><button @@click="updateStudent">Update</button></span>
+
+                    </div>
+                </div>
+            </modal-dialog>
+        </div>
+        <template id="grid-template">
+            <table>
+                <thead>
+                    <tr>
+                        <th v-for="col in columns">
+                            {{col.name }}
+                        </th>
+                        <th>Delete</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--与vue 1.0 的不同-->
+                    <tr v-for="(entry,index) in dataList">
+
+                        <td v-for="col in columns">
+                            {{entry[col.name]}}
+                        </td>
+                        <td><button class="btn-danger" @@click="deleteStudent(entry)">Delete</button></td>
+                        <td><button @@click="loadEntry(entry)">Edit</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </template>
+
+        <template id="dialog-template">
+            <div class="dialogs">
+                <div class="dialog" v-bind:class="{'dialog-active':show}">
+                    <div class="dialog-content">
+                        <div class="close rotate">
+                            <!--绑定一个事件-->
+                            <span class="iconfont icon-close" @@click="$emit('close')"></span>
+                        </div>
+                        <slot name="header"></slot>
+                        <slot name="body"></slot>
+                        <slot name="footer"></slot>
+                    </div>
+                </div>
+                <div class="dialog-overlay"></div>
+            </div>
+        </template>
+
+        <script src="~/js/jquery-1.10.2.min.js"></script>
+        <script src="~/js/vue2.0.js"></script>
+        <script>
+            Vue.component( 'simple-grid', {
+                template: '#grid-template',
+                props: ['dataList', 'columns'],
+                methods: {
+                    loadEntry: function ( key )
+                    {
+                        this.$emit( 'load-entry', key )
+
+                    },
+                    deleteStudent: function ( entry )
+                    {
+                        this.$emit( 'delete-entry', entry );
+
+                    },
+                    updateStudent: function ( entry )
+                    {
+                        this.$emit( 'update-entry', entry );
+
+                    }
+
+                }
+            });
+            Vue.component( 'modal-dialog', {
+                template: '#dialog-template',
+                props: ['show'],
+            })
+
+        </script>
+        <script>
+            var indexMethod = {
+                //获取当前时间，格式化为你想要的形式2017-04-24T09:20:28
+                getNowFormatDate: function ()
+                {
+                    var date = new Date();
+                    var seperator1 = "-";
+                    var seperator2 = ":";
+                    var month = date.getMonth() + 1;
+                    var strDate = date.getDate();
+                    if ( month >= 1 && month <= 9 )
+                    {
+                        month = "0" + month;
+                    }
+                    if ( strDate >= 0 && strDate <= 9 )
+                    {
+                        strDate = "0" + strDate;
+                    }
+                    var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+                        + " " + date.getHours() + seperator2 + date.getMinutes()
+                        + seperator2 + date.getSeconds();
+                    return currentdate;
+                },
+            };
+            var vm = new Vue( {
+                el: '#app',
+                data: {
+                    show: false,
+                    gridColumns: [
+                        { name: 'id', isKey: true },
+                        { name: 'lastName' },
+                        { name: 'firstMidName' },
+                        { name: 'enrollmentDate' }],
+                    gridData: [],
+                    item: {},
+                    isCreate: 0,
+                    errorWarn: {
+                        Key: "",
+                        LastName: "",
+                        FirstMidName: "",
+                        EnrollmentDate: ""
+                    }
+                },
+                //ready: function () {
+                //    this.selectStudents();
+                //},
+                mounted: function ()
+                {
+                    var _this = this;
+                    this.$nextTick( function ()
+                    {
+                        _this.selectStudents();
+                    })
+                },
+                methods: {
+                    close: function ()
+                    {
+
+                        this.show = false;
+                        this.errorWarn = {
+                            Key: "",
+                            LastName: "",
+                            FirstMidName: "",
+                            EnrollmentDate: ""
+                        };
+
+                    },
+                    //查询
+                    selectStudents: function ()
+                    {
+                        var _this = this;
+                        var url = '/api/student/index';
+                        callback = function ( data )
+                        {
+                            _this.gridData = data;
+                        };
+                        $.post( url, {}, callback );
+                    },
+                    //添加
+                    createStudent: function ()
+                    {
+                        var _this = this;
+                        var url = "/api/student/create";
+                        callback = function ( data )
+                        {
+                            if ( !data.isValidate )
+                            {
+                                //_this.errorWarn = data.errorLists;
+                                //console.log(_this.errorWarn);
+
+                                $.each( data.errorLists, function ( index, value )
+                                {
+                                    _this.errorWarn.Key = true;
+                                    _this.errorWarn[value.key] = value.message;
+                                });
+                                console.log( _this.errorWarn );
+                                console.log( _this.errorWarn.LastName );
+                                console.log( _this.errorWarn.FirstMidName );
+                            }
+                            else
+                            {
+                                _this.close();
+                                
+                                //_this.show = false;
+                                _this.selectStudents();
+
+                            }
+
+                        };
+                        if ( !_this.item.enrollmentDate )
+                            _this.item.enrollmentDate = indexMethod.getNowFormatDate();
+                        $.post( url, _this.item, callback );
+                    },
+                    //删除
+                    deleteStudent: function ( student )
+                    {
+                        var _this = this;
+                        var url = "/api/student/delete";
+                        //删除成功操作
+                        callback = function ( data )
+                        {
+                            _this.selectStudents();
+                        };
+                        $.post( url, student, callback );
+                    },
+                    //加载详情
+                    loadStudentDetail: function ( entry )
+                    {
+                        //-------未优化
+                        //var url = '/api/student/detail';
+                        //var _this = this;
+                        //callback = function (data) {
+                        //    _this.$set('item', data);
+                        //    _this.show = true;
+                        //};
+                        //$.post(url, { id: key }, callback);
+
+                        //-------优化后
+                        var _this = this
+                        _this.gridData.forEach( function ( item )
+                        {
+                            if ( item.id === entry.id )
+                            {
+                                // 使用$.set设置item
+                                _this.item = item;
+                                return
+                            }
+                        }),
+                            _this.show = true;
+                    },
+                    //修改信息
+                    updateStudent: function ()
+                    {
+                        var _this = this;
+                        var url = "/api/student/update";
+                        callback = function ( data )
+                        {
+                            _this.selectStudents();
+                            _this.show = false;
+                        };
+                        $.post( url, _this.item, callback );
+
+                    }
+                }
+            });
+            vm.$watch( 'show', function ( newVal, oldVal )
+            {
+                if ( !newVal )
+                {
+                    this.item = {};
+                }
+            })
+
+
+        </script>
+
+    </body>
+</html>
+
+
+
+
+

@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="~/css/style.css" />
+    <link href="~/fonts/iconfont.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <simple-grid :data-list="gridData" :columns="gridColumns">
+            </simple-grid>
+        </div>
+        <div class="container">
+            <div class="form-group">
+                <button @@click="this.show = true">Create</button>
+            </div>
+        </div>
+        <modal-dialog v-bind:show.sync="show">
+            <header class="dialog-header" slot="header">
+                <h1 class="dialog-title">Create New Customer</h1>
+            </header>
+            <div class="dialog-body" slot="body">
+                <div v-show="item.id" class="form-group">
+                    <label>Id</label>
+                    <input type="text" v-model="item.id" disabled="disabled" />
+                </div>
+                <div class="form-group">
+                    <label>LastName</label>
+                    <input type="text" v-model="item.lastName" />
+                </div>
+                <div class="form-group">
+                    <label>FirstMidName</label>
+                    <input type="text" v-model="item.firstMidName" />
+                </div>
+                <div class="form-group">
+                    <label>EnrollmentDate</label>
+                    <input type="text" v-model="item.enrollmentDate" />
+                </div>
+                <div class="form-group">
+                    <label></label>
+                    <button @@click="createCustomer">Save</button>
+                </div>
+            </div>
+        </modal-dialog>
+    </div>
+    <template id="grid-template">
+        <table>
+            <thead>
+                <tr>
+                    <th v-for="col in columns">
+                        {{ col.name }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(index,entry) in dataList">
+                    <td v-for="col in columns">
+                        {{ entry[col.name] }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+    <template id="dialog-template">
+        <div class="dialogs">
+            <div class="dialog" v-bind:class="{ 'dialog-active': show }">
+                <div class="dialog-content">
+                    <div class="close rotate">
+                        <span class="iconfont icon-close" @@click="close"></span>
+                    </div>
+                    <slot name="header"></slot>
+                    <slot name="body"></slot>
+                    <slot name="footer"></slot>
+                </div>
+            </div>
+            <div class="dialog-overlay"></div>
+        </div>
+    </template>
+    <script src="~/js/jquery-1.10.2.min.js"></script>
+    <script src="~/js/vue2.0.js"></script>
+    <script>
+        Vue.component('simple-grid', {
+            template: '#grid-template',
+            props: ['dataList', 'columns']
+        })
+
+        Vue.component('modal-dialog', {
+            template: '#dialog-template',
+            props: ['show'],
+            methods: {
+                close: function () {
+                    this.show = false
+                }
+            }
+        })
+    </script>
+    <script>
+        //var ajaxHelper = new AjaxHelper()
+
+        var demo = new Vue({
+            el: '#app',
+            data: {
+                show: false,
+                gridColumns: [
+                    { name: 'id', isKey: true },
+                    { name: 'lastName' },
+                    { name: 'firstMidName' },
+                    { name: 'enrollmentDate' }],
+                gridData: [],
+
+                item: {}
+            },
+            ready: function () {
+                this.getCustomers()
+            },
+            methods: {
+                closeDialog: function () {
+                    this.show = false
+                },
+                getStudent: function () {
+                    // 定义_this变量，让它指向this,this是当前的Vue实例
+                    var _this = this;
+                    var url = '/api/student/index';
+                    callback = function (data) {
+                        // 由于函数的作用域，这里不能用this
+                        _this.$set('gridData', data)
+                    }
+                    $.post(url, null, callback)
+                },
+                createCustomer: function () {
+                    var _this = this;
+                    var url = '/api/student/create'
+                    callback = function (data) {
+                        _this.$set('item', {})
+                        // 添加成功后，重新加载页面数据
+                        _this.getCustomers()
+                    }
+                    // 将vm.item直接POST到服务端
+                    $.post(url, _this.item, callback)
+                    this.show = false
+                },
+
+            }
+        })
+    </script>
+</body>
+</html>

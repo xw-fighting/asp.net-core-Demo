@@ -1,0 +1,238 @@
+﻿@*@model PaginatedList<Dream.EntityFramework.Models.Student>
+    @{
+        ViewData["Title"] = "Index";
+    }
+    <h2>Index</h2>
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+    <form asp-action="Index" method="get">
+        <div class="form-actions no-color">
+            <p>
+                Find by name: <input type="text" name="SearchString" value="@ViewData["currentFilter"]" />
+                <input type="submit" value="Search" class="btn btn-default" /> |
+                <a asp-action="Index">Back to Full List</a>
+            </p>
+        </div>
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Last Name</a>
+                </th>
+                <th>
+                    First Name
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Enrollment Date</a>
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FirstMidName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EnrollmentDate)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @{
+        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    }
+    <a asp-action="Index"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-page="@(Model.PageIndex - 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-default @prevDisabled btn">
+        Previous
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-page="@(Model.PageIndex + 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-default @nextDisabled btn">
+        Next
+    </a>*@
+
+@*<!DOCTYPE HTML>
+    <html>
+
+    <head>
+        <script src="https://unpkg.com/vue/dist/vue.js"></script>
+        <script src="~/js/jquery-1.10.2.min.js"></script>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+
+    <body>
+       <div>
+           <ul id="student">
+               <li v-for="item in dataList">
+                   {{ item.id }}---{{ item.lastName }}-----{{ item.firstMidName }}
+               </li>
+           </ul>
+       </div>
+
+
+    </body>
+    <script type="text/javascript">
+        ///展示列表
+        var studentList = new Vue({
+            el: '#student',
+            data: {
+                dataList: [ ]
+            },
+            created: function () {
+                var url = "/api/student/index";
+                var _self = this;
+                $.post(url, function (data) {
+                    _self.dataList = data;
+                })
+            },
+
+        });
+
+    </script>
+
+    </html>*@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link href="~/css/demo.css" rel="stylesheet" />
+    <script src="~/js/jquery-1.10.2.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <fieldset>
+            <legend>
+                Create New Person
+            </legend>
+            <div class="form-group">
+                <label>LastName:</label>
+                <input type="text" v-model="newPerson.lastName" />
+            </div>
+            <div class="form-group">
+                <label>FirstMidName:</label>
+                <input type="text" v-model="newPerson.firstMidName" />
+            </div>
+            <div class="form-group">
+                <label>EnrollmentDate:</label>
+                <input type="text" v-model="newPerson.enrollmentDate" />
+            </div>
+            <div class="form-group">
+                <label></label>
+                <button @@click="createPerson">Create</button>
+            </div>
+        </fieldset>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>LastName</th>
+                    <th>FirstMidName</th>
+                    <th>EnrollmentDate</th>
+                    <th>Delete</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in people">
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.lastName }}</td>
+                    <td>{{ item.firstMidName }}</td>
+                    <td>{{ item.enrollmentDate }}</td>
+                    <td :class="'text-center'"><button @@click="deletePerson(index)">Delete</button></td>
+                    <td :class="'text-center'"><button @@click="editPerson(index)">Edit</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+@*<script src="https://unpkg.com/vue/dist/vue.js"></script>*@
+<script src="~/js/vue.js"></script>
+<script>
+    var indexMethod = {
+        //获取当前时间，格式化为你想要的形式2017-04-24T09:20:28
+        getNowFormatDate: function () {
+            var date = new Date();
+            var seperator1 = "-";
+            var seperator2 = ":";
+            var month = date.getMonth() + 1;
+            var strDate = date.getDate();
+            if (month >= 1 && month <= 9) {
+                month = "0" + month;
+            }
+            if (strDate >= 0 && strDate <= 9) {
+                strDate = "0" + strDate;
+            }
+            var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+                + " " + date.getHours() + seperator2 + date.getMinutes()
+                + seperator2 + date.getSeconds();
+            return currentdate;
+        }
+
+    };
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            newPerson: {
+                lastName: '',
+                firstMidName: '',
+                enrollmentDate: ''
+            },
+            people: []
+        },
+        created: function () {
+            var url = "/api/student/index";
+            var _self = this;
+            $.post(url, function (data) {
+                _self.people = data;
+                console.log(_self.people);
+            })
+        },
+        methods: {
+            createPerson: function () {
+                var url = "/api/student/create";
+                var _self = this;
+                _self.newPerson.enrollmentDate = indexMethod.getNowFormatDate();
+                $.post(url, _self.newPerson, function (data) {
+                    if (data) {
+                        window.location = "/student/index";
+
+                    }
+                });
+                //this.people.push(this.newPerson);
+                // 添加完newPerson对象后，重置newPerson对象
+                this.newPerson = { lastName: '', firstMidName: "", enrollmentDate: indexMethod.getNowFormatDate() }
+            },
+            deletePerson: function (index) {
+                // 删一个数组元素
+                console.log(index);
+                this.people.splice(index, 1);
+            },
+            
+        },
+
+    });
+
+</script>
+</html>

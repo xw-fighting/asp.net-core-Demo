@@ -1,0 +1,31 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+<div>
+    <input type="button" value="Test" onclick="testFunc()" />
+</div>
+<script>
+    var testFunc = function(){
+    var UserModel =
+        {
+            FName: "Abc",
+            LName: "Pqr"
+        };
+    $.ajax({
+        url: '/Home/AddUser/',
+        type: "POST",
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        data: UserModel,
+        success: function () {
+
+        }
+    });
+    }
+</script>
+@{
+    ViewData["Title"] = "Home Page";
+}

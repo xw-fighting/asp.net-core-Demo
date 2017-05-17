@@ -1,0 +1,264 @@
+﻿<!DOCUTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <link href="~/css/style.css" rel="stylesheet" />
+        <link href="~/fonts/iconfont.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div id="app">
+            <div class="container">
+                <simple-grid :data-list="gridData"
+                             :columns="gridColumns"
+                             v-on:load-entry="loadStudentDetail"
+                             v-on:delete-entry="deleteStudent"
+                             v-on:update-entry="updateStudent">
+                </simple-grid>
+            </div>
+            <div class="container">
+                <div class="form-group">
+                    <button @@click="this.show = true,this.isCreate += 1">Create</button>
+                </div>
+            </div>
+            <modal-dialog v-bind:show.sync="show">
+                <header class="dialog-header" slot="header">
+                    <h1 class="dialog-title">Create New Student</h1>
+                </header>
+
+                <div class="dialog-body" slot="body">
+                    <div v-show="item.id" class="form-group">
+                        <label>Id</label>
+                        <input type="text" v-model="item.id" disabled="disabled" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>lastName</label>
+                        <input type="text" v-model="item.lastName" />
+                        <span v-show="errorWarn[0].key" class="form-group">{{errorWarn[0].message}}</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>firstMidName</label>
+                        <input type="text" v-model="item.firstMidName" />
+                        <span v-show="errorWarn[1].key">{{errorWarn[1].message}}</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>enrollmentDate</label>
+                        <input type="text" v-model="item.enrollmentDate" />
+                    </div>
+                    <div class="form-group">
+                        <label></label>
+                        <span v-if="item.id == null"><button @@click="createStudent">Save</button></span>
+                        <span v-else><button @@click="updateStudent">Update</button></span>
+                        
+                    </div>
+                </div>
+            </modal-dialog>
+        </div>
+        <template id="grid-template">
+            <table>
+                <thead>
+                    <tr>
+                        <th v-for="col in columns">
+                            {{col.name | capitalize}}
+                        </th>
+                        <th>Delete</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(index,entry) in dataList">
+
+                        <td v-for="col in columns">
+                            @*<span v-if="col.isKey"><a href="javascript:void(0)" @@click="loadEntry(entry[col.name])">{{ entry[col.name] }}</a></span>
+                            <span v-else>{{entry[col.name]}}</span>*@
+                            {{entry[col.name]}}
+                        </td>
+                        <td><button class="btn-danger" @@click="deleteStudent(entry)">Delete</button></td>
+                        <td><button @@click="loadEntry(entry)">Edit</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </template>
+
+        <template id="dialog-template">
+            <div class="dialogs">
+                <div class="dialog" v-bind:class="{'dialog-active':show}">
+                    <div class="dialog-content">
+                        <div class="close rotate">
+                            <span class="iconfont icon-close" @@click="close"></span>
+                        </div>
+                        <slot name="header"></slot>
+                        <slot name="body"></slot>
+                        <slot name="footer"></slot>
+                    </div>
+                </div>
+                <div class="dialog-overlay"></div>
+            </div>
+        </template>
+
+        <script src="~/js/jquery-1.10.2.min.js"></script>
+        <script src="~/js/vue1.0.js"></script>
+        @*<script src="~/js/zepto.js"></script>
+        <script src="~/js/ajax-helper.js"></script>*@
+        <script>
+            Vue.component('simple-grid', {
+                template: '#grid-template',
+                props: ['dataList', 'columns'],
+                methods: {
+                    loadEntry: function (key) {
+                        this.$dispatch('load-entry', key)
+
+                    },
+                    deleteStudent: function (entry) {
+                        this.$dispatch('delete-entry', entry);
+
+                    },
+                    updateStudent: function (entry) {
+                        this.$dispatch('update-entry', entry);
+
+                    }
+
+                }
+            });
+            Vue.component('modal-dialog', {
+                template: '#dialog-template',
+                props: ['show'],
+                methods: {
+                    close: function () {
+                        this.show = false;
+
+                    }
+                }
+            })
+
+        </script>
+        <script>
+            var indexMethod = {
+                //获取当前时间，格式化为你想要的形式2017-04-24T09:20:28
+                getNowFormatDate: function () {
+                    var date = new Date();
+                    var seperator1 = "-";
+                    var seperator2 = ":";
+                    var month = date.getMonth() + 1;
+                    var strDate = date.getDate();
+                    if (month >= 1 && month <= 9) {
+                        month = "0" + month;
+                    }
+                    if (strDate >= 0 && strDate <= 9) {
+                        strDate = "0" + strDate;
+                    }
+                    var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+                        + " " + date.getHours() + seperator2 + date.getMinutes()
+                        + seperator2 + date.getSeconds();
+                    return currentdate;
+                }
+
+            };
+            var vm = new Vue({
+                el: '#app',
+                data: {
+                    show: false,
+                    gridColumns: [
+                        { name: 'id', isKey: true },
+                        { name: 'lastName' },
+                        { name: 'firstMidName' },
+                        { name: 'enrollmentDate' }],
+                    gridData: [],
+                    item: {},
+                    isCreate: 0,
+                    errorWarn:{}
+                },
+                ready: function () {
+                    this.selectStudents();
+                },
+                methods: {
+                    //查询
+                    selectStudents: function () {
+                        var _this = this;
+                        var url = '/api/student/index';
+                        callback = function (data) {
+                            _this.$set('gridData', data);
+                        };
+                        $.post(url, {}, callback);
+                    },
+                    //添加
+                    createStudent: function () {
+                        var _this = this;
+                        var url = "/api/student/create";
+                        callback = function (data) {
+                            if (!data.isValidate) {
+                                _this.errorWarn = data.errorLists;
+                            }
+                            else {
+                                _this.$set('item', {});
+                                _this.show = false;
+                                _this.selectStudents();
+
+                            }
+                            
+                        };
+                        if (!_this.item.enrollmentDate)
+                            _this.item.enrollmentDate = indexMethod.getNowFormatDate();
+                        $.post(url, _this.item, callback);
+                    },
+                    //删除
+                    deleteStudent: function (student) {
+                        var _this = this;
+                        var url = "/api/student/delete";
+                        //删除成功操作
+                        callback = function (data) {
+                            _this.selectStudents();
+                        };
+                        $.post(url, student, callback);
+                    },
+                    //加载详情
+                    loadStudentDetail: function (entry) {
+                        //-------未优化
+                        //var url = '/api/student/detail';
+                        //var _this = this;
+                        //callback = function (data) {
+                        //    _this.$set('item', data);
+                        //    _this.show = true;
+                        //};
+                        //$.post(url, { id: key }, callback);
+
+                        //-------优化后
+                        var _this = this
+                        _this.gridData.forEach(function (item) {
+                            if (item.id === entry.id) {
+                                // 使用$.set设置item
+                                _this.$set('item', item)
+                                return
+                            }
+                        }),
+                            _this.$set('show', true)
+                    },
+                    //修改信息
+                    updateStudent: function () {
+                        var _this = this;
+                        var url = "/api/student/update";
+                        callback = function (data) {
+                            _this.selectStudents();
+                            _this.show = false;
+                        };
+                        $.post(url, _this.item, callback);
+
+                    }
+                }
+            });
+            vm.$watch('show', function (newVal, oldVal) {
+                if (!newVal) {
+                    this.item = {}
+                }
+            })
+
+
+        </script>
+
+    </body>
+</html>
+
+
