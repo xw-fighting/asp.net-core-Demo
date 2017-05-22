@@ -183,7 +183,7 @@
                     <button @@click="show = true">Create</button>
                 </div>
             </div>
-            <!--触发事件-->
+            <!--触发事件 父组件-->
             <modal-dialog v-bind:show="show" @@close="close">
                 <header class="dialog-header" slot="header">
                     <h1 class="dialog-title">Create New Student</h1>
@@ -245,16 +245,17 @@
             </table>
         </template>
 
+        <!--属于modal-dialog 的子组件-->
         <template id="dialog-template">
             <div class="dialogs">
                 <div class="dialog" v-bind:class="{'dialog-active':show}">
                     <div class="dialog-content">
                         <div class="close rotate">
-                            <!--绑定一个事件-->
+                            绑定一个事件
                             <span class="iconfont icon-close" @@click="$emit('close')"></span>
                         </div>
-                        <slot name="header"></slot>
-                        <slot name="body"></slot>
+                        <slot name="header"></slot><!--替换父组件中的 <header></header>-->
+                        <slot name="body"></slot><!--替换父组件中的 <body></body>-->
                         <slot name="footer"></slot>
                     </div>
                 </div>
