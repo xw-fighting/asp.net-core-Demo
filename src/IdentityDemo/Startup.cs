@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using IdentityDemo.Data;
 using IdentityDemo.Models;
 using IdentityDemo.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityDemo
 {
@@ -71,18 +72,18 @@ namespace IdentityDemo
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            app.UseGoogleAuthentication(new GoogleOptions()
-            {
-                ClientId = Configuration["Authentication:Google:ClientId"],
-                ClientSecret = Configuration["Authentication:Google:ClientSecret"]
-            });
+           
 
             app.UseStaticFiles();
 
             app.UseIdentity();
 
             // Add external authentication middleware below. To configure them please see https://go.microsoft.com/fwlink/?LinkID=532715
-
+            app.UseGoogleAuthentication(new GoogleOptions()
+            {
+                ClientId = Configuration["Authentication:Google:ClientId"],
+                ClientSecret = Configuration["Authentication:Google:ClientSecret"]
+            });
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
