@@ -23,11 +23,10 @@ namespace Dream.Web.Api
         [HttpPost]
         public async Task<List<Student>> Index()
 
-
         {
             var students = from s in _context.Student
                            select s;
-            return students.ToList();
+            return await Task.FromResult(students.ToList());
         }
 
         [HttpPost]
