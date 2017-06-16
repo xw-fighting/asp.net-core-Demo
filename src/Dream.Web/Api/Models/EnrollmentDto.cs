@@ -7,5 +7,6 @@ namespace Dream.Web.Api.Models
 {
     public class EnrollmentDto
     {
+
     }
 }

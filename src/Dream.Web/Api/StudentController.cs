@@ -22,6 +22,8 @@ namespace Dream.Web.Api
         }
         [HttpPost]
         public async Task<List<Student>> Index()
+
+
         {
             var students = from s in _context.Student
                            select s;
@@ -32,40 +34,42 @@ namespace Dream.Web.Api
         //[ValidateAntiForgeryToken]
         public async Task<ApiReturnResult> Create(StudentDto student)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var studentModel = new Student()
-                {
-                    LastName = student.LastName,
-                    FirstMidName = student.FirstMidName,
-                    EnrollmentDate = student.EnrollmentDate
-                };
-                _context.Add(studentModel);
-                await _context.SaveChangesAsync();
-
+                var modelErrors = ModelState.AllModelStateErrors();
                 return new ApiReturnResult()
                 {
-                    IsValidate = true
+                    IsValidate = false,
+                    ErrorLists = modelErrors.ToList()
                 };
             }
+            var studentModel = new Student()
+            {
+                LastName = student.LastName,
+                FirstMidName = student.FirstMidName,
+                EnrollmentDate = student.EnrollmentDate
+            };
+            _context.Add(studentModel);
+            await _context.SaveChangesAsync();
 
-            var modelErrors = ModelState.AllModelStateErrors();
             return new ApiReturnResult()
             {
-                IsValidate = false,
-                ErrorLists = modelErrors.ToList()
+                IsValidate = true
             };
         }
 
         [HttpPost]
-        public async Task<bool> Delete(Student student)
+        public async Task<bool> Delete(string id)
         {
-            //var student = await _context.Student.SingleOrDefaultAsync(c => c.ID == id);
+            int studentId = 0;
+            if (!int.TryParse(id, out studentId))
+                return await Task.FromResult(false);
+            
+            var student = await _context.Student.SingleOrDefaultAsync(c => c.ID == studentId);
             if (student == null)
                 return false;
             _context.Student.Remove(student);
-            await _context.SaveChangesAsync();
-            return true;
+            return await _context.SaveChangesAsync()>0;
 
         }
 
@@ -79,15 +83,27 @@ namespace Dream.Web.Api
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="student"></param>
+        /// <param name="studentDto"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<bool> Update(Student student)
+        public async Task<bool> Update(StudentDto studentDto)
         {
-            //var student = await _context.Student.SingleOrDefaultAsync(m => m.ID == id);
+            //int studentId = 0;
+            //if (!int.TryParse(id, out studentId))
+            //    return await Task.FromResult(false);
+
+            //var student = await _context.Student.SingleOrDefaultAsync(m => m.ID == studentId);
+            var student = new Student()
+            {
+                ID = studentDto.ID,
+                EnrollmentDate = studentDto.EnrollmentDate,
+                Enrollments = studentDto.Enrollments,
+                FirstMidName = studentDto.FirstMidName,
+                LastName = studentDto.LastName
+            };
             _context.Set<Student>().Attach(student);
             _context.Entry(student).State = EntityState.Modified;
-            return _context.SaveChanges() > 0;
+            return await _context.SaveChangesAsync() > 0;
 
         }
     }

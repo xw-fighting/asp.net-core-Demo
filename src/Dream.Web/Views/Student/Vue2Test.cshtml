@@ -210,6 +210,7 @@
                     <div class="form-group">
                         <label>enrollmentDate</label>
                         <input type="text" v-model="item.enrollmentDate" />
+                        <span v-show="errorWarn.Key">{{errorWarn.EnrollmentDate}}</span>
                     </div>
                     <div class="form-group">
                         <label></label>
@@ -238,7 +239,7 @@
                         <td v-for="col in columns">
                             {{entry[col.name]}}
                         </td>
-                        <td><button class="btn-danger" @@click="deleteStudent(entry)">Delete</button></td>
+                        <td><button class="btn-danger" @@click="deleteEntry(entry)">Delete</button></td>
                         <td><button @@click="loadEntry(entry)">Edit</button></td>
                     </tr>
                 </tbody>
@@ -251,7 +252,7 @@
                 <div class="dialog" v-bind:class="{'dialog-active':show}">
                     <div class="dialog-content">
                         <div class="close rotate">
-                            绑定一个事件
+                            @*绑定一个事件*@
                             <span class="iconfont icon-close" @@click="$emit('close')"></span>
                         </div>
                         <slot name="header"></slot><!--替换父组件中的 <header></header>-->
@@ -270,12 +271,11 @@
                 template: '#grid-template',
                 props: ['dataList', 'columns'],
                 methods: {
-                    loadEntry: function ( key )
-                    {
-                        this.$emit( 'load-entry', key )
+                    loadEntry: function ( key ) {
+                        this.$emit('load-entry', key);
 
                     },
-                    deleteStudent: function ( entry )
+                    deleteEntry: function ( entry )
                     {
                         this.$emit( 'delete-entry', entry );
 
@@ -288,10 +288,11 @@
 
                 }
             });
-            Vue.component( 'modal-dialog', {
-                template: '#dialog-template',
-                props: ['show'],
-            })
+            Vue.component('modal-dialog',
+                {
+                    template: '#dialog-template',
+                    props: ['show']
+                });
 
         </script>
         <script>
@@ -316,7 +317,7 @@
                         + " " + date.getHours() + seperator2 + date.getMinutes()
                         + seperator2 + date.getSeconds();
                     return currentdate;
-                },
+                }
             };
             var vm = new Vue( {
                 el: '#app',
@@ -343,10 +344,9 @@
                 mounted: function ()
                 {
                     var _this = this;
-                    this.$nextTick( function ()
-                    {
+                    this.$nextTick(function () {
                         _this.selectStudents();
-                    })
+                    });
                 },
                 methods: {
                     close: function ()
@@ -366,7 +366,7 @@
                     {
                         var _this = this;
                         var url = '/api/student/index';
-                        callback = function ( data )
+                        var callback = function ( data )
                         {
                             _this.gridData = data;
                         };
@@ -377,14 +377,14 @@
                     {
                         var _this = this;
                         var url = "/api/student/create";
-                        callback = function ( data )
-                        {
+                        var callback = function (data) {
+                            console.log(data);
                             if ( !data.isValidate )
                             {
                                 //_this.errorWarn = data.errorLists;
                                 //console.log(_this.errorWarn);
 
-                                $.each( data.errorLists, function ( index, value )
+                                $.each( data.errorLists, function (index,value)
                                 {
                                     _this.errorWarn.Key = true;
                                     _this.errorWarn[value.key] = value.message;
@@ -396,7 +396,6 @@
                             else
                             {
                                 _this.close();
-                                
                                 //_this.show = false;
                                 _this.selectStudents();
 
@@ -408,19 +407,21 @@
                         $.post( url, _this.item, callback );
                     },
                     //删除
-                    deleteStudent: function ( student )
+                    deleteStudent: function (student)
                     {
                         var _this = this;
                         var url = "/api/student/delete";
                         //删除成功操作
-                        callback = function ( data )
-                        {
+                        var callback = function ( data ) {
+                            if (!data) {
+                                alert("删除失败");
+                            }
                             _this.selectStudents();
                         };
-                        $.post( url, student, callback );
+                        $.post( url, {id:student.id}, callback );
                     },
                     //加载详情
-                    loadStudentDetail: function ( entry )
+                    loadStudentDetail: function (entry)
                     {
                         //-------未优化
                         //var url = '/api/student/detail';
@@ -432,14 +433,14 @@
                         //$.post(url, { id: key }, callback);
 
                         //-------优化后
-                        var _this = this
-                        _this.gridData.forEach( function ( item )
+                        var _this = this;
+                        _this.gridData.forEach( function (item)
                         {
                             if ( item.id === entry.id )
                             {
                                 // 使用$.set设置item
                                 _this.item = item;
-                                return
+                                return;
                             }
                         }),
                             _this.show = true;
@@ -449,23 +450,25 @@
                     {
                         var _this = this;
                         var url = "/api/student/update";
-                        callback = function ( data )
+                        var callback = function (data)
                         {
-                            _this.selectStudents();
-                            _this.show = false;
+                            if (data) {
+                                _this.selectStudents();
+                                _this.show = false;
+                            }
+                            
                         };
                         $.post( url, _this.item, callback );
 
                     }
                 }
             });
-            vm.$watch( 'show', function ( newVal, oldVal )
-            {
-                if ( !newVal )
-                {
-                    this.item = {};
-                }
-            })
+            vm.$watch('show',
+                function(newVal, oldVal) {
+                    if (!newVal) {
+                        this.item = {};
+                    }
+                });
 
 
         </script>
