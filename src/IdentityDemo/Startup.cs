@@ -84,6 +84,7 @@ namespace IdentityDemo
                 ClientId = Configuration["Authentication:Google:ClientId"],
                 ClientSecret = Configuration["Authentication:Google:ClientSecret"]
             });
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
